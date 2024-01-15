@@ -20,6 +20,7 @@ public:
 	GShader(GWindow& w) : window(w) { }
 
 	virtual Output operator()(const Input&) = 0;
+	virtual void update() = 0;
 
 	GWindow& window;
 };
@@ -31,6 +32,8 @@ public:
 	OutputType operator()(const InputType& v) {
 		return v;
 	}
+
+	void update() { }
 };
 
 class GDefaultGeometryShader : public GShader<GTriangle<IVertex>, GTriangle<IVertex>> {
@@ -40,6 +43,8 @@ public:
 	OutputType operator()(const InputType& tri) {
 		return tri;
 	}
+
+	void update() { }
 };
 
 class GDefaultFragmentShader : public GShader<IVertex, GRgba> {
@@ -49,6 +54,8 @@ public:
 	OutputType operator()(const InputType& v) {
 		return OutputType{};
 	}
+
+	void update() { }
 };
 
 template <class VertexShader, class GeometryShader, class FragmentShader>

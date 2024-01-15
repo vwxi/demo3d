@@ -12,4 +12,4 @@ i will not share build instructions because it is just so ugly
 
 - moveable camera (wasd/arrows)
 - can load OBJ files
-- flat shading
+- gouraud shading

@@ -14,6 +14,10 @@ struct GObjVertex : public IVertex {
 	GObjVertex(vec4 p, vec2 u, vec3 n, vec3 c) : pos(p), uv(u), normal(n), color(c) { }
 
 	void berp(vec3 bary, GObjVertex v0, GObjVertex v1, GObjVertex v2, float d) {
+        pos.x = b_interpolate(bary, vec3(v0.pos.x, v1.pos.x, v2.pos.x)) * d;
+        pos.y = b_interpolate(bary, vec3(v0.pos.y, v1.pos.y, v2.pos.y)) * d;
+        pos.z = b_interpolate(bary, vec3(v0.pos.z, v1.pos.z, v2.pos.z)) * d;
+
 		uv.x = b_interpolate(bary, vec3(v0.uv.x, v1.uv.x, v2.uv.x)) * d;
 		uv.y = b_interpolate(bary, vec3(v0.uv.y, v1.uv.y, v2.uv.y)) * d;
 

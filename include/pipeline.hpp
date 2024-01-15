@@ -231,7 +231,6 @@ private:
 				if(window.test_set_depth_buffer(x, y, in_w)) {
 					// interpolate vertex attributes
 					FInputType input;
-					input.pos = vec4(s_bary, 1);
 					input.berp(s_bary, tri.a, tri.b, tri.c, in_w);
 
 					window.put_pixel(x, y, context.fragment_shader(input));

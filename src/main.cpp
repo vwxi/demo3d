@@ -2,6 +2,22 @@
 
 using namespace demo;
 
+struct Light {
+	vec3 pos;
+	vec3 diffuse;
+	vec3 ambient;
+	vec3 specular;
+	vec3 color;
+	float shinyness;
+} static light{
+	{ 0, 0, 10 }, 
+	{1.f, 1.f, 1.f}, 
+	{0.1f, 0.1f, 0.1f}, 
+	{1.f, 1.f, 1.f}, 
+	{1.f, 1.f, 1.f}, 
+	100.f
+};
+
 struct Camera {
 	vec3 eye;
 	vec3 angle;
@@ -11,11 +27,6 @@ struct Camera {
 	float yaw;
 	
 	float speed = 1.f;
-
-	vec3 light_pos{0.f, 0.f, 5.f};
-	vec3 light_diffuse{1.f, 1.f, 1.f};
-	vec3 light_ambient{0.1f, 0.1f, 0.1f};
-	vec3 light_color{1.0f, 1.0f, 1.0f};
 
 	Camera() :
 		eye(0, 0, 0),
@@ -33,9 +44,9 @@ struct Camera {
 	}
 } static camera;
 
-class VertShader : public GShader<GObjVertex, GObjVertex> {
+class GouraudVertShader : public GShader<GObjVertex, GObjVertex> {
 public:
-	VertShader(GWindow& win) :
+	GouraudVertShader(GWindow& win) :
 		GShader(win),
 		aspect_ratio((float)win.width / win.height),
 		fov(45),
@@ -44,18 +55,28 @@ public:
 	}
 
 	OutputType operator()(const InputType& v) {
-		vec3 diffuse = camera.light_color * 
-			std::max(0.0f, 
-				dot(normalize(v.normal), 
-					normalize(camera.light_pos - vec3(v.pos))));
-		vec3 col = saturate((camera.light_ambient + diffuse) * camera.light_color);
+		vec3 pos = model_view * v.pos;
+		vec3 light_pos = model_view * vec4(light.pos, 1);
 
-		return OutputType(matrix * v.pos, v.uv, vec3(matrix * vec4(v.normal, 0.0f)), col);
+		vec3 N = normalize(normal_matrix * v.normal);
+		vec3 L = normalize(light_pos - pos);
+		vec3 V = normalize(-pos);
+		vec3 H = normalize(L + V);
+
+		vec3 ambient = light.ambient;
+
+		vec3 diffuse = max(dot(L, N), 0.0f) * light.diffuse;
+		vec3 specular = pow(max(dot(N, H), 0.0f), light.shinyness) * light.specular;
+
+		vec3 color = saturate(light.color * (ambient + diffuse + specular));
+
+		return OutputType(projection * model_view * v.pos, v.uv, N, color);
 	}
 
 	void update() {
-		matrix = perspective(fov, aspect_ratio, near, far) *
-			lookAt(camera.eye, camera.eye + camera.angle, camera.up);
+		projection = perspective(fov, aspect_ratio, near, far);
+		model_view = lookAt(camera.eye, camera.eye + camera.angle, camera.up);
+		normal_matrix = mat3x3(transpose(inverse(model_view)));
 	}
 
 	float aspect_ratio;
@@ -64,7 +85,9 @@ public:
 	float near;
 
 private:
-	mat4x4 matrix;
+	mat4x4 projection;
+	mat4x4 model_view;
+	mat3x3 normal_matrix;
 };
 
 class GeoShader : public GShader<GTriangle<GObjVertex>, GTriangle<GObjVertex>> {
@@ -74,11 +97,13 @@ public:
 	OutputType operator()(const InputType& tri) {
 		return tri;
 	}
+
+	void update() { }
 };
 
-class FragShader : public GShader<GObjVertex, GRgba> {
+class ColorFragShader : public GShader<GObjVertex, GRgba> {
 public:
-	FragShader(GWindow& win) : 
+	ColorFragShader(GWindow& win) : 
 		GShader(win) { }
 
 	GRgba operator()(const GObjVertex& v) {
@@ -89,19 +114,21 @@ public:
 			255
 		};
 	}
+
+	void update() { }
 };
 
 class ExampleScene : public GScene {
 public:
 	using EContext = GContext<
-		VertShader, 
+		GouraudVertShader, 
 		GeoShader, 
-		FragShader>;
+		ColorFragShader>;
 
 	ExampleScene(GWindow& win) :
 		pipeline(win),
 		window(win),
-		object("../assets/teapot_out.obj") {
+		object("../assets/teapot2.obj") {
 		win.register_scene(this);
 		
 		// init camera
@@ -112,6 +139,7 @@ public:
 		camera.pitch = 0.0f;
 
 		camera.update();
+		pipeline.context.vertex_shader.update();
 
 		triangles = object.get_triangle_list();
 	}
