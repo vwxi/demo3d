@@ -17,6 +17,7 @@
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/compatibility.hpp>

@@ -212,9 +212,9 @@ private:
 			bb_max_y = std::max(std::max(tri.a.pos.y, tri.b.pos.y), tri.c.pos.y);
 
 		// loop over bounding box
-		for(int y = bb_min_y; y < bb_max_y; y++) {
-			for(int x = bb_min_x; x < bb_max_x; x++) {
-				vec2 point(x + 0.5f, y + 0.5f),
+		for(int y = bb_min_y; y <= bb_max_y; y++) {
+			for(int x = bb_min_x; x <= bb_max_x; x++) {
+				vec2 point(x+0.5f, y+0.5f),
 					ta(tri.a.pos), tb(tri.b.pos), tc(tri.c.pos);
 				
 				// screen space (2D) barycentric
