@@ -202,8 +202,8 @@ public:
         std::cout << "loaded object. " << vertices.size() << " vertices.\n";
     }
 
-    GTriangleList<GObjVertex> get_triangle_list() {
-        return GTriangleList<GObjVertex>(vertices, indices);
+    GMesh<GObjVertex> get_triangle_list() {
+        return GMesh<GObjVertex>(vertices, indices);
     }
 
     std::vector<GObjVertex> vertices;

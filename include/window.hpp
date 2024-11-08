@@ -94,10 +94,6 @@ public:
 		if(!renderer)
 			throw std::runtime_error("could not create SDL renderer");
 
-		// SDL_ShowCursor(SDL_DISABLE);
-		// SDL_SetWindowGrab(window, SDL_TRUE);
-		// SDL_SetRelativeMouseMode(SDL_TRUE);
-
 		if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
 			throw std::runtime_error("could not initialize SDL_image");
 
@@ -154,11 +150,10 @@ public:
 		while(!quit) {
 			u32 first = SDL_GetTicks(), delta;
 
-			SDL_PumpEvents();
+			while(SDL_PollEvent(&event)) {
+				scene->process(event);
+			}
 
-			SDL_PollEvent(&event);
-			
-			scene->process(event);
 			scene->draw();
 
 			delta = SDL_GetTicks() - first;

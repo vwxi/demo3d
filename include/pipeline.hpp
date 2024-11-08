@@ -33,7 +33,7 @@ public:
 
 	// start pipeline
 	template <typename T>
-	void process(GTriangleList<T> tri) {
+	void process(GMesh<T> tri) {
 		std::vector<VOutputType> tri_transformed;
 
 		for(auto v : tri.vertices) {
@@ -175,7 +175,7 @@ private:
 				break;
 
 			VOutputType v0 = vertices[0], v1 = vertices[i], v2 = vertices[i+1];
-			transform_triangle(context.geometry_shader(GTriangle(v0, v1, v2)));
+			transform_triangle(GTriangle(v0, v1, v2));
 		}
 	}
 

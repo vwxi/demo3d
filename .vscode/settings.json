@@ -1,4 +1,9 @@
 {
     "cmake.configureOnOpen": true,
-    "editor.tabSize": 4
+    "editor.tabSize": 4,
+    "files.associations": {
+        "iosfwd": "cpp",
+        "sstream": "cpp",
+        "cmath": "cpp"
+    }
 }

@@ -128,7 +128,8 @@ public:
 	ExampleScene(GWindow& win) :
 		pipeline(win),
 		window(win),
-		object("../assets/teapot2.obj") {
+		object("../assets/dragon.obj"),
+		object2("../assets/suzanne.obj") {
 		win.register_scene(this);
 		
 		// init camera
@@ -141,25 +142,24 @@ public:
 		camera.update();
 		pipeline.context.vertex_shader.update();
 
-		triangles = object.get_triangle_list();
+		mesh = object.get_triangle_list();
+		mesh2 = object2.get_triangle_list();
+
+		for(auto& e : mesh2.vertices) {
+			e.pos.y += 10;
+		}
 	}
 
 	void process(const SDL_Event& event) {
 		switch(event.type) {
 		case SDL_QUIT: window.quit = true; break;
-		case SDL_KEYDOWN:
+		case SDL_KEYDOWN: 
 			switch(event.key.keysym.sym) {
 			case SDLK_w: // move forward
 				camera.eye += camera.angle * camera.speed; 
 				break;
 			case SDLK_s: // move backward
 				camera.eye -= camera.angle * camera.speed; 
-				break;
-			case SDLK_a: // move left
-				camera.eye -= normalize(cross(camera.angle, camera.up)) * camera.speed;
-				break;
-			case SDLK_d: // move right
-				camera.eye += normalize(cross(camera.angle, camera.up)) * camera.speed;
 				break;
 			case SDLK_RIGHT: // turn right
 				camera.yaw += 4;
@@ -196,19 +196,38 @@ public:
 
 	void draw() {
 		window.clear();
+
+		const float t = 0.01;
+		mat3x3 angle(
+			vec3(cos(t), 0, sin(t)),
+			vec3(0, 1, 0),
+			vec3(-sin(t), 0, cos(t))
+		);
+
+		// for(auto& tri : mesh.vertices) {
+		// 	vec3 pos(tri.pos);
+		// 	pos = angle * pos;
+		// 	tri.pos = vec4(pos, 1);
+		// }
+
+		light.pos = angle * light.pos;
+		
 		{
 			std::stringstream ss;
 			ss << to_string(camera.eye);
 			window.print(0, 20, ss.str());
 		}
-		pipeline.process(triangles);
+		pipeline.process(mesh);
+		pipeline.process(mesh2);
 	}
 
 	GPipeline<EContext> pipeline;
 	GWindow& window;
-
+	
 	GObj object;
-	GTriangleList<GObjVertex> triangles;
+	GObj object2;
+	GMesh<GObjVertex> mesh;
+	GMesh<GObjVertex> mesh2;
 };
 
 int main() {

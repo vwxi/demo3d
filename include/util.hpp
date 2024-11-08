@@ -18,6 +18,8 @@
 #include <SDL_image.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_PRECISION_LOWP_FLOAT
+
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/compatibility.hpp>
@@ -133,10 +135,10 @@ struct IVertex {
 };
 
 template <typename T>
-struct GTriangleList {
-	GTriangleList() { }
+struct GMesh {
+	GMesh() { }
 
-	GTriangleList(std::vector<T> vs, std::vector<size_t> is) :
+	GMesh(std::vector<T> vs, std::vector<size_t> is) :
 		vertices(vs), 
 		indices(is) { 
 		assert(vertices.size() > 2);
